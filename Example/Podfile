@@ -1,0 +1,6 @@
+use_frameworks!
+target 'DephynedFire_Tests' do
+  pod 'DephynedFire', :path => '../'
+  
+  
+end
