@@ -1,6 +1,24 @@
+platform :ios, '13.0'
+
 use_frameworks!
+
 target 'DephynedFire_Tests' do
+
   pod 'DephynedFire', :path => '../'
+
+  pod 'SnapKit'
+  pod 'Firebase/Auth'
+  pod 'SwiftLocation', '~> 4.0'
+  pod 'Firebase/Core'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Storage'
+  pod 'Firebase/Functions'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+  pod 'GeoFire', :git => 'https://github.com/firebase/geofire-objc.git'
+
+  pod 'AWSS3', '~> 2.11.0'
+  pod 'AWSMobileClient', '~> 2.11.0'
   
   
 end

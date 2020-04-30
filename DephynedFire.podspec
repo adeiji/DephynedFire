@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'DephynedFire'
-  s.version          = '0.1.0'
-  s.summary          = 'A short description of DephynedFire.'
+  s.version          = '1.0.0'
+  s.summary          = 'An easy way to handle Firebase, Firestore, and AWS services.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+The purpose of this library is to make Firebase, Firestore, and AWS Service handling extremely simple
                        DESC
 
   s.homepage         = 'https://github.com/adeiji/DephynedFire'
@@ -28,7 +28,7 @@ TODO: Add long description of the pod here.
   s.source           = { :git => 'https://github.com/adeiji/DephynedFire.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '13.0'
 
   s.source_files = 'DephynedFire/Classes/**/*'
   
@@ -39,4 +39,22 @@ TODO: Add long description of the pod here.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
+  
+  # Allow static frameworks
+  s.static_framework = true
+  
+  s.dependency 'SnapKit'
+  s.dependency 'Firebase/Auth'
+  s.dependency 'SwiftLocation'
+  s.dependency 'Firebase/Core'
+  s.dependency 'Firebase/Firestore'
+  s.dependency 'Firebase/Storage'
+  s.dependency 'Firebase/Functions'
+  s.dependency 'RxSwift'
+  s.dependency 'RxCocoa'
+  s.dependency 'AWSCore'
+  s.dependency 'AWSS3'
+  s.dependency 'AWSS3', '~> 2.11.0'
+  s.dependency 'AWSMobileClient', '~> 2.11.0'
+  s.dependency 'GeoFire', '~> 4.0'
 end
