@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'DephynedFire'
-  s.version          = '1.0.0'
+  s.version          = '1.0.1'
   s.summary          = 'An easy way to handle Firebase, Firestore, and AWS services.'
 
 # This description is used to generate tags and improve search results.

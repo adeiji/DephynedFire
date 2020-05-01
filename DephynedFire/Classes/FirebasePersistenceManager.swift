@@ -28,7 +28,7 @@ let kDocumentId = "document_id"
 let kUsersCollection = "users"
 let kUserId = "userId"
 
-class FirebasePersistenceManager: NSObject {
+open class FirebasePersistenceManager: NSObject {
     
     static var timer:Timer!
     

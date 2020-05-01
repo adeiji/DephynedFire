@@ -10,7 +10,7 @@ import Foundation
 import FirebaseAnalytics
 import FirebaseAuth
 
-class AnalyticsManager {
+open class AnalyticsManager {
     
     static let kUserId = "user_id"
     
