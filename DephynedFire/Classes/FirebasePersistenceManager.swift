@@ -134,7 +134,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    open static func getDocumentById (forCollection collection: String, id: String) -> Observable<FirebaseDocument> {
+    public static func getDocumentById (forCollection collection: String, id: String) -> Observable<FirebaseDocument> {
                                 
         return Observable.create { (observer) -> Disposable in
             let db = Firestore.firestore()
