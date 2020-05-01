@@ -14,13 +14,13 @@ open class AnalyticsManager {
     
     static let kUserId = "user_id"
     
-    enum ContentType: String {
+    public enum ContentType: String {
         case Spot
         case SharedSpot
         case User
     }
     
-    enum Actions: String {
+    public enum Actions: String {
         case Shared
         case Liked
         case Disliked
@@ -95,7 +95,7 @@ open class AnalyticsManager {
         case WallCreated
     }
     
-    static func logMethodEvent(name: String) {
+    public static func logMethodEvent(name: String) {
         
         guard
             let userId = Auth.auth().currentUser?.uid
@@ -106,7 +106,7 @@ open class AnalyticsManager {
         ])
     }
     
-    static func logSearch (searchTerm:String) {
+    public static func logSearch (searchTerm:String) {
         
         guard
             let userId = Auth.auth().currentUser?.uid
@@ -118,7 +118,7 @@ open class AnalyticsManager {
         ])
     }
     
-    static func logContentAction (type: ContentType, action: Actions, id: String?) {
+    public static func logContentAction (type: ContentType, action: Actions, id: String?) {
         
         guard
             let id = id,
@@ -133,7 +133,7 @@ open class AnalyticsManager {
         ])
     }
     
-    static func logGenericEvent (name: Actions) {
+    public static func logGenericEvent (name: Actions) {
         
         guard
             let userId = Auth.auth().currentUser?.uid
@@ -145,7 +145,7 @@ open class AnalyticsManager {
         
     }
     
-    static func logError (message:String) {
+    public static func logError (message:String) {
         Analytics.logEvent(message, parameters: nil)
     }
 }

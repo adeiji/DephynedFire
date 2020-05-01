@@ -30,18 +30,18 @@ let kUserId = "userId"
 
 open class FirebasePersistenceManager: NSObject {
     
-    static var timer:Timer!
+    public static var timer:Timer!
     
     /// Stores the image data all the images that have been downloaded from the server to this point
-    static let imageCache = NSCache<NSString, NSData>()
+    public static let imageCache = NSCache<NSString, NSData>()
     
-    static let profileImageCache = NSCache<NSString, NSData>()
+    public static let profileImageCache = NSCache<NSString, NSData>()
     
-    let disposeBag = DisposeBag()
+    public let disposeBag = DisposeBag()
     
-    var lastDocumentSnapshot:DocumentSnapshot?
+    open var lastDocumentSnapshot:DocumentSnapshot?
     
-    static let shared = FirebasePersistenceManager()
+    public static let shared = FirebasePersistenceManager()
     
     private static var downsampleQueue = DispatchQueue(label: "downsample")
     
@@ -49,7 +49,7 @@ open class FirebasePersistenceManager: NSObject {
     /// The current logged in user's profile picture
     ///
     /// - Returns: A String object representing the current user's profile picture url or nil if a user is not logged in
-    class func getProfilePictureURL () -> String? {
+    open class func getProfilePictureURL () -> String? {
         if (Auth.auth().currentUser != nil) {
             return Auth.auth().currentUser?.photoURL?.absoluteString
         }
@@ -62,7 +62,7 @@ open class FirebasePersistenceManager: NSObject {
     /// Checks whether someone is logged in or not
     ///
     /// - Returns: True if a user is logged in, false if no user logged in
-    class func isLoggedIn () -> Bool {
+    open class func isLoggedIn () -> Bool {
         return Auth.auth().currentUser?.displayName != nil
     }
     
@@ -74,7 +74,7 @@ open class FirebasePersistenceManager: NSObject {
         - bucketUrl: The url of the bucket to delete the image from
         - appBucket: The name of the bucket to delete the image from
      */
-    class func deleteImage (imageUrl:URL?, bucketUrl:String, appBucket:String) {
+    open class func deleteImage (imageUrl:URL?, bucketUrl:String, appBucket:String) {
         guard let imageUrl = imageUrl else { return }
         guard let deleteObjectRequest = AWSS3DeleteObjectRequest() else { return }
         guard let keyIndex = imageUrl.absoluteString.range(of: "\(bucketUrl)/")?.upperBound else { return }
@@ -96,7 +96,7 @@ open class FirebasePersistenceManager: NSObject {
         - imageData: The image as data to store to the bucket
         - completion: Closure to execute on completion, return the URL of the image if uploaded successfully or an error
      */
-    class func uploadImage (fullPath:String, bucketUrl:String, appBucket:String, imageData: Data, completion: @escaping (URL?, Error?) -> Void) {
+    open class func uploadImage (fullPath:String, bucketUrl:String, appBucket:String, imageData: Data, completion: @escaping (URL?, Error?) -> Void) {
         
         if let url = URL(string: "\(bucketUrl)/\(fullPath)") {
             self.saveImageToCache(url: url, data: imageData as NSData, isProfileImage: false)
@@ -134,7 +134,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    static func getDocumentById (forCollection collection: String, id: String) -> Observable<FirebaseDocument> {
+    open static func getDocumentById (forCollection collection: String, id: String) -> Observable<FirebaseDocument> {
                                 
         return Observable.create { (observer) -> Disposable in
             let db = Firestore.firestore()
@@ -170,7 +170,7 @@ open class FirebasePersistenceManager: NSObject {
     FirebasePersistenceManager.addDocumentWithImage(fullPath: "userId/\(kImagesUrl)/\(NSUUID().uuidString)", imageData: imageData, collection: kTagsCollection, data: data )
      ````
      */
-    class func addDocumentWithImage (fullPath: String, bucketUrl:String, appBucket:String, imageData: Data, collection:String, data:[String:Any], withId id:String? = nil, completion: FirebaseRequestClosure?) {
+    open class func addDocumentWithImage (fullPath: String, bucketUrl:String, appBucket:String, imageData: Data, collection:String, data:[String:Any], withId id:String? = nil, completion: FirebaseRequestClosure?) {
         
         self.uploadImage(fullPath: fullPath, bucketUrl: bucketUrl, appBucket: appBucket, imageData: imageData) { (url, error) in
             
@@ -201,7 +201,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    class func getImageFromCache (url: URL?, completion: @escaping (Error?, UIImage?, String?) -> Void) {
+    open class func getImageFromCache (url: URL?, completion: @escaping (Error?, UIImage?, String?) -> Void) {
         guard let url = url else { return }
         if let cachedImageData = self.imageCache.object(forKey: url.absoluteString as NSString) as Data? {
             completion(nil, UIImage(data: cachedImageData), url.absoluteString)
@@ -243,7 +243,7 @@ open class FirebasePersistenceManager: NSObject {
     /// - Parameters:
     ///   - url: URL The url of the image
     ///   - completion: Closure of type <Error?, UIImage?>
-    class func downloadImage (url: URL?, isProfileImage:Bool = false, imageWidth:CGFloat = 800, needImageReturned:Bool = true, completion: @escaping (Error?, UIImage?, String?) -> Void) {
+    open class func downloadImage (url: URL?, isProfileImage:Bool = false, imageWidth:CGFloat = 800, needImageReturned:Bool = true, completion: @escaping (Error?, UIImage?, String?) -> Void) {
         
         guard let url = url else { return }
         
@@ -292,7 +292,7 @@ open class FirebasePersistenceManager: NSObject {
         
     }
     
-    func downloadImageFromHTTPS (url: URL, completion: @escaping (Error?, Data?) -> Void) {
+    open func downloadImageFromHTTPS (url: URL, completion: @escaping (Error?, Data?) -> Void) {
         let session = URLSession(configuration: .default)
         
         //creating a dataTask
@@ -322,7 +322,7 @@ open class FirebasePersistenceManager: NSObject {
         getImageFromUrl.resume()
     }
     
-    func downloadImageData (url: URL?, bucketName:String? = nil, completion: @escaping (Error?, Data?, String?) -> Void) {
+    open func downloadImageData (url: URL?, bucketName:String? = nil, completion: @escaping (Error?, Data?, String?) -> Void) {
         
         guard let url = url else { return }
             
@@ -368,7 +368,7 @@ open class FirebasePersistenceManager: NSObject {
         - shouldMerge: (Optional) Boolean value indicating whether we should overwrite the data if it exists on the server or merge the data.  If shouldMerge is set to true, make sure that you also provide an id
         - completion: The closure to get results, of type FirebaseRequestClosure? Returns the created document
      */
-    class func addDocument (withCollection collection:String, data:[String:Any], withId id:String? = nil, shouldMerge:Bool = false, completion: FirebaseRequestClosure?) {
+    open class func addDocument (withCollection collection:String, data:[String:Any], withId id:String? = nil, shouldMerge:Bool = false, completion: FirebaseRequestClosure?) {
         let db = Firestore.firestore()
         var ref: DocumentReference? = nil
         self.startTimer()
@@ -415,7 +415,7 @@ open class FirebasePersistenceManager: NSObject {
         self.timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(multipleWriteFinished), userInfo: nil, repeats: false)
     }
     
-    @objc class func multipleWriteFinished () {
+    @objc open class func multipleWriteFinished () {
         // Show the finished banner
 //        UtilityFunctions.showTaskCompleted(title: "Finished Importing From Instagram")
     }
@@ -430,7 +430,7 @@ open class FirebasePersistenceManager: NSObject {
         - id - (Optional) The id that you want to set for the document
         - completion - Closure of type <Error?, FirebaseDocument?>
      */
-    class func addDocumentIfNotDuplicate (withCollection collection: String, key: String, value: Any, document:[String:Any], withId id:String? = nil, completion: FirebaseRequestClosure?) {
+    open class func addDocumentIfNotDuplicate (withCollection collection: String, key: String, value: Any, document:[String:Any], withId id:String? = nil, completion: FirebaseRequestClosure?) {
         let db = Firestore.firestore()
         let docRef = db.collection(collection).whereField(key, isEqualTo: value)
                 
@@ -499,7 +499,7 @@ open class FirebasePersistenceManager: NSObject {
     ///   - collection: The collections which to
     ///   - queryDocument: The key, values of the field you want deleted
     ///   - documentId: Optional String - The ID of the document that you want to delete if that is known
-    class func deleteDocuments (withCollection collection: String, queryDocument:[String:Any]? = nil, documentId:String? = nil, completion: ((Bool, Error?) -> Void)? = nil)  {
+    open class func deleteDocuments (withCollection collection: String, queryDocument:[String:Any]? = nil, documentId:String? = nil, completion: ((Bool, Error?) -> Void)? = nil)  {
         if let documentId = documentId {
             let db = Firestore.firestore()
             db.collection(collection).document(documentId).delete() { err in
@@ -536,7 +536,7 @@ open class FirebasePersistenceManager: NSObject {
     ///   - collection: String The collection of which to search on
     ///   - queryDocument: [String:Any] The object containing the key values to search on
     ///   - completion: A closure of type FirebaseRequestMultiDocClosure - contains the documents received from Firebase Firestore collection
-    class func queryWithMultipleKeyValues (withCollection collection: String, queryDocument:[String:Any], fromCache:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure) {
+    open class func queryWithMultipleKeyValues (withCollection collection: String, queryDocument:[String:Any], fromCache:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure) {
         let db = Firestore.firestore()
         let collectionRef = db.collection(collection)
         var query:Query!
@@ -561,7 +561,7 @@ open class FirebasePersistenceManager: NSObject {
      - parameters querySnapshot: The snapshot to get the data from
      - returns: An array of FirebaseDocuments
      */
-    class func convertSnapshotToFirebaseDocuments (querySnapshot: QuerySnapshot) -> [FirebaseDocument] {
+    open class func convertSnapshotToFirebaseDocuments (querySnapshot: QuerySnapshot) -> [FirebaseDocument] {
         var documents = [FirebaseDocument]()
         for doc in querySnapshot.documents {
             documents.append(FirebaseDocument(documentId: doc.documentID, data: doc.data()))
@@ -581,7 +581,7 @@ open class FirebasePersistenceManager: NSObject {
         - collection: The Firestore collection to search on
         - key: The key in the Firestore collection to perform the search on
      */
-    class func getSearchQuery(value:String, collection:String, key:String) -> Query {
+    open class func getSearchQuery(value:String, collection:String, key:String) -> Query {
         let db = Firestore.firestore()
         var myValue = value
         let lastCharacter = myValue.last
@@ -595,7 +595,7 @@ open class FirebasePersistenceManager: NSObject {
     }
     
     /// Gets the next letter after a given letter.  We use this method so that we can make sure that our searches are not case sensitive
-    class func nextLetter(_ letter: String) -> String? {
+    open class func nextLetter(_ letter: String) -> String? {
         // Check if string is build from exactly one Unicode scalar:
         guard let uniCode = UnicodeScalar(letter) else {
             return nil
@@ -625,7 +625,7 @@ open class FirebasePersistenceManager: NSObject {
      
      - returns: An observable for the query that can be subscribed to
      */
-    class func searchForDocumentsAsObservable (value:String, collection:String, key:String) -> Observable<[FirebaseDocument]> {
+    open class func searchForDocumentsAsObservable (value:String, collection:String, key:String) -> Observable<[FirebaseDocument]> {
         
         return Observable.create { (observer) -> Disposable in
             let docRef = getSearchQuery(value: value, collection: collection, key: key)
@@ -653,7 +653,7 @@ open class FirebasePersistenceManager: NSObject {
         - collection: The Firestore collection to search on
         - completion: The closure to execute upon response
      */
-    class func getDocuments (count: Int? = nil, collection: String, completion: @escaping FirebaseRequestMultiDocClosure) {
+    open class func getDocuments (count: Int? = nil, collection: String, completion: @escaping FirebaseRequestMultiDocClosure) {
         let db = Firestore.firestore()
         var docRef:Query!
         
@@ -694,7 +694,7 @@ open class FirebasePersistenceManager: NSObject {
      
      It's also important to remember to that the fieldPath data type needs to be a number value
      */
-    func getDocumentsAdded (after:Bool, timeInterval:TimeInterval, collection:String, fieldPath:String, limit:Int, shouldSaveSnapshot:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure) {
+    open func getDocumentsAdded (after:Bool, timeInterval:TimeInterval, collection:String, fieldPath:String, limit:Int, shouldSaveSnapshot:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure) {
         
         let db = Firestore.firestore()
         var query:Query?
@@ -746,7 +746,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    class func getDocuments (withCollection collection: String, key: String? = nil, value: Any? = nil, queryDocument:[String:Any]? = nil, searchContainString:Bool = false, fromCache:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure ) {
+    open class func getDocuments (withCollection collection: String, key: String? = nil, value: Any? = nil, queryDocument:[String:Any]? = nil, searchContainString:Bool = false, fromCache:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure ) {
                 
         if queryDocument != nil {
             queryWithMultipleKeyValues(withCollection: collection, queryDocument: queryDocument!, completion: completion)
@@ -781,7 +781,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    class func getAndWatchCurrentUser (userId: String, completion: @escaping FirebaseRequestClosure) -> ListenerRegistration {
+    open class func getAndWatchCurrentUser (userId: String, completion: @escaping FirebaseRequestClosure) -> ListenerRegistration {
         let db = Firestore.firestore()
         let subscription = db.collection(kUsersCollection).document(userId).addSnapshotListener(includeMetadataChanges: true) { (document, error) in
             if let error = error {
@@ -796,7 +796,7 @@ open class FirebasePersistenceManager: NSObject {
         return subscription        
     }
     
-    class func getCurrentUser (userId: String, retryTimes:Int = 3, numberOfTimesRetried:Int = 0, completion: @escaping FirebaseRequestClosure) {
+    open class func getCurrentUser (userId: String, retryTimes:Int = 3, numberOfTimesRetried:Int = 0, completion: @escaping FirebaseRequestClosure) {
         let db = Firestore.firestore()
         
         db.collection(kUsersCollection).document(userId)
@@ -818,11 +818,11 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    class func convertDocSnapshotToFirebaseDoc (document: DocumentSnapshot) -> FirebaseDocument {
+    open class func convertDocSnapshotToFirebaseDoc (document: DocumentSnapshot) -> FirebaseDocument {
         return FirebaseDocument(documentId: document.documentID, data: document.data() ?? [String:Any]())
     }
     
-    class func getDocumentsForUser (withCollection collection: String, userId: String, completion: @escaping (Error?, [FirebaseDocument]?) -> Void) {
+    open class func getDocumentsForUser (withCollection collection: String, userId: String, completion: @escaping (Error?, [FirebaseDocument]?) -> Void) {
         let db = Firestore.firestore()
         let docRef = db.collection(collection).whereField(kUserId, isEqualTo: userId)
         docRef.getDocuments { (querySnapshot, err) in
@@ -856,7 +856,7 @@ open class FirebasePersistenceManager: NSObject {
         - field: String The field/key to delete
         - documentID: String the document ID of the document to remove the field from
      */
-    class func deleteField(collection:String, field:String, documentId:String) {
+    open class func deleteField(collection:String, field:String, documentId:String) {
         let db = Firestore.firestore()
         db.collection(collection).document(documentId).updateData([field : FieldValue.delete()]) { (error) in
             if let _ = error {
@@ -878,7 +878,7 @@ open class FirebasePersistenceManager: NSObject {
      
      - returns: An observable of FirebaseDocuments
      */
-    func getNearbyDocumentKeys (location: CLLocation, forCollection collection:String, collectionContainingDocuments: String) -> Observable<[String]> {
+    open func getNearbyDocumentKeys (location: CLLocation, forCollection collection:String, collectionContainingDocuments: String) -> Observable<[String]> {
         
         return Observable.create { (observer) -> Disposable in
             
@@ -920,7 +920,7 @@ open class FirebasePersistenceManager: NSObject {
      
      - Returns: The completion closure will contain an error if there was one, however the update document itself is not returned
      */
-    class func updateDocument (withId documentId:String?, collection: String, updateDoc:[String:Any]?, documents:[String:[String:Any]]? = nil, completion: ((Error?) -> Void)?) {
+    open class func updateDocument (withId documentId:String?, collection: String, updateDoc:[String:Any]?, documents:[String:[String:Any]]? = nil, completion: ((Error?) -> Void)?) {
         if documentId == nil && documents == nil {
             fatalError("You must either set the documents or the documentId parameter\n\nYou have two options when using this function.  You can either update just one document or multiple.  If you want to update just one, than the two required parameters are updateDoc AND documentId.  If you're updating many, than you must set a value for the documents parameter and make sure that documentId and updateDoc are nil")
         }
@@ -953,7 +953,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    class func generateObject<T: Decodable>(fromFirebaseDocument document:FirebaseDocument) -> T? {
+    open class func generateObject<T: Decodable>(fromFirebaseDocument document:FirebaseDocument) -> T? {
         let dict = document.data
         
         do {
@@ -975,7 +975,7 @@ open class FirebasePersistenceManager: NSObject {
      
      - returns: An observable sequence containing a single document
      */
-    static func getDocumentAsObservable (withId id: String, collection:String) -> Observable<FirebaseDocument> {
+    public static func getDocumentAsObservable (withId id: String, collection:String) -> Observable<FirebaseDocument> {
 
         return Observable.create { (observer ) -> Disposable in
             let db = Firestore.firestore()
@@ -993,7 +993,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    static func getDocumentsAsObservable (withCollection collection:String, queryDocument:[String:Any]) -> Observable<[FirebaseDocument]> {
+    public static func getDocumentsAsObservable (withCollection collection:String, queryDocument:[String:Any]) -> Observable<[FirebaseDocument]> {
         
         return Observable.create { (observer) -> Disposable in
             let db = Firestore.firestore()
@@ -1030,7 +1030,7 @@ open class FirebasePersistenceManager: NSObject {
         
     }
     
-    class func getObjectsFromFirebaseDocuments<T: Decodable>(fromFirebaseDocuments documents:[FirebaseDocument]?) -> [T]? {
+    open class func getObjectsFromFirebaseDocuments<T: Decodable>(fromFirebaseDocuments documents:[FirebaseDocument]?) -> [T]? {
         
         var objects = [T]()
         
@@ -1045,7 +1045,7 @@ open class FirebasePersistenceManager: NSObject {
         return objects
     }
     
-    class func arrayToFirebaseKeyValuePairs (array:[String]) -> [String:Bool] {
+    open class func arrayToFirebaseKeyValuePairs (array:[String]) -> [String:Bool] {
         var dict = [String:Bool]()
         array.forEach { (key) in
             dict[key] = true
@@ -1055,7 +1055,7 @@ open class FirebasePersistenceManager: NSObject {
     }
 }
 
-extension Array where Iterator.Element == String {
+public extension Array where Iterator.Element == String {
     func arrayToFirebaseKeyValuePairs () -> [String:Bool] {
         var dict = [String:Bool]()
         self.forEach { (key) in
@@ -1066,16 +1066,16 @@ extension Array where Iterator.Element == String {
     }
 }
 
-struct FirebaseDocument {
+public struct FirebaseDocument {
     var documentId:String
     var data:[String: Any]
 }
 
-struct FirebaseKeyValues {
+public struct FirebaseKeyValues {
     var keys:[String]
     var values:[Any]
 }
 
-typealias FirebaseRequestClosure = (Error?, FirebaseDocument?) -> Void
-typealias FirebaseRequestMultiDocClosure = (Error?, [FirebaseDocument]?) -> Void
-typealias FirebaseHTTPSRequestClosure = (Error?, HTTPSCallableResult?) -> Void
+public typealias FirebaseRequestClosure = (Error?, FirebaseDocument?) -> Void
+public typealias FirebaseRequestMultiDocClosure = (Error?, [FirebaseDocument]?) -> Void
+public typealias FirebaseHTTPSRequestClosure = (Error?, HTTPSCallableResult?) -> Void
