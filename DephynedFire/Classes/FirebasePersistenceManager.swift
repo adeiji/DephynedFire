@@ -746,7 +746,7 @@ open class FirebasePersistenceManager: NSObject {
         }
     }
     
-    open class func getDocuments (withCollection collection: String, key: String? = nil, value: Any? = nil, queryDocument:[String:Any]? = nil, searchContainString:Bool = false, fromCache:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure ) {
+    open class func getDocuments (withCollection collection: String, key: String? = nil, value: Any? = nil, queryDocument:[String:Any]? = nil, searchContainString:Bool = false, fromCache:Bool = false, shouldKeepListening:Bool = false, completion: @escaping FirebaseRequestMultiDocClosure ) {
                 
         if queryDocument != nil {
             queryWithMultipleKeyValues(withCollection: collection, queryDocument: queryDocument!, completion: completion)
@@ -764,7 +764,7 @@ open class FirebasePersistenceManager: NSObject {
                 }
             }
             
-            docRef?.getDocuments { (querySnapshot, err) in
+            func handleQueryResult (querySnapshot:QuerySnapshot?, err: Error?) {
                 if let err = err {
                     print("Error getting documents: \(err)")
                     completion(err, nil)
@@ -777,6 +777,19 @@ open class FirebasePersistenceManager: NSObject {
                     }
                     completion(nil, documents)
                 }
+            }
+            
+            // If want to recieve real time updates
+            if shouldKeepListening {
+                docRef?.addSnapshotListener({ (querySnapshot, err) in
+                    handleQueryResult(querySnapshot: querySnapshot, err: err)
+                })
+                
+                return
+            }
+            
+            docRef?.getDocuments { (querySnapshot, err) in
+                handleQueryResult(querySnapshot: querySnapshot, err: err)
             }
         }
     }
